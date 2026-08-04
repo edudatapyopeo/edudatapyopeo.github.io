@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dashboard ข้อมูลพื้นฐานด้านการศึกษาของจังหวัดพะเยา">
+  <title>ข้อมูลพื้นฐาน | ข้อมูลการศึกษาพะเยา</title>
+  <link rel="icon" type="image/png" href="../assets/images/moe-icon.png">
+  <link rel="stylesheet" href="../assets/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="../assets/css/tailwind.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-dashboard="basic" class="bg-slate-50 font-sans text-slate-800 antialiased">
+  <a href="#mainContent" class="focus-ring fixed left-3 top-3 z-[2100] -translate-y-24 rounded-lg bg-white px-4 py-2 font-semibold text-pyo-800 shadow-lg focus:translate-y-0">ข้ามไปยังเนื้อหา</a>
+  <div id="sidebarBackdrop" class="sidebar-backdrop" hidden></div>
+
+  <aside id="siteSidebar" class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col bg-slate-950 text-slate-100 shadow-2xl transition-transform duration-200 lg:translate-x-0" aria-label="เมนูหลัก">
+    <div class="flex items-center gap-3 border-b border-slate-800 px-5 py-5">
+      <img src="../assets/images/moe-icon.png" alt="ตรากระทรวงศึกษาธิการ" class="h-14 w-14 object-contain">
+      <div class="min-w-0"><p class="font-semibold leading-5 text-white">ข้อมูลการศึกษาพะเยา</p><p class="mt-1 text-xs text-slate-400">PYO Education Data</p></div>
+      <button id="sidebarCloseButton" type="button" class="focus-ring ml-auto rounded-lg p-2 text-slate-300 hover:bg-slate-800 lg:hidden" aria-label="ปิดเมนู">✕</button>
+    </div>
+    <nav class="flex-1 overflow-y-auto px-3 py-5">
+      <a href="../index.html" class="focus-ring flex items-center gap-3 rounded-lg px-4 py-3 text-slate-200 hover:bg-slate-800"><span aria-hidden="true">⌂</span><span>หน้าแรก</span></a>
+      <button id="dashboardMenuButton" type="button" class="focus-ring mt-2 flex w-full items-center gap-3 rounded-lg bg-slate-800 px-4 py-3 text-left text-white" aria-expanded="true" aria-controls="dashboardMenu"><span aria-hidden="true">▦</span><span class="flex-1">แดชบอร์ด</span><span data-chevron class="rotate-180 transition-transform" aria-hidden="true">⌄</span></button>
+      <div id="dashboardMenu" class="ml-5 border-l border-slate-700 pl-3">
+        <a href="basic.html" aria-current="page" class="focus-ring block rounded-md bg-pyo-700 px-3 py-2 text-sm font-semibold text-white">ข้อมูลพื้นฐาน</a>
+        <a href="students.html" class="focus-ring block rounded-md px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white">ข้อมูลนักเรียน</a>
+        <a href="teachers.html" class="focus-ring block rounded-md px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white">ครูและบุคลากร</a>
+        <a href="curriculum.html" class="focus-ring block rounded-md px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white">หลักสูตร</a>
+        <a href="infrastructure.html" class="focus-ring block rounded-md px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white">โครงสร้างพื้นฐาน</a>
+      </div>
+    </nav>
+    <div class="border-t border-slate-800 p-4"><a href="../admin/login.html" class="focus-ring block rounded-lg border border-slate-700 px-4 py-2.5 text-center text-sm font-semibold hover:border-pyo-500">เข้าสู่ระบบเจ้าหน้าที่</a></div>
+  </aside>
+
+  <div class="min-h-screen lg:pl-72">
+    <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-8">
+      <div class="mx-auto flex max-w-7xl items-center gap-3">
+        <button id="menuButton" type="button" class="focus-ring rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm lg:hidden" aria-expanded="false" aria-controls="siteSidebar" aria-label="เปิดเมนู">☰</button>
+        <div class="min-w-0 flex-1"><h1 class="truncate font-bold text-slate-900">Dashboard ข้อมูลพื้นฐาน</h1><p class="truncate text-xs text-slate-500">สำนักงานศึกษาธิการจังหวัดพะเยา</p></div>
+      </div>
+    </header>
+
+    <main id="mainContent" class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
+      <section class="rounded-2xl bg-gradient-to-r from-slate-950 to-pyo-800 p-6 text-white shadow-soft sm:p-8">
+        <p class="text-sm font-semibold text-pyo-100">BASIC EDUCATION DATA</p>
+        <h2 class="mt-2 text-2xl font-bold sm:text-3xl">ภาพรวมข้อมูลพื้นฐานทางการศึกษาจังหวัดพะเยา</h2>
+        <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-200">เลือกปี สังกัด และพื้นที่การศึกษาเพื่อดูจำนวนสถานศึกษา นักเรียน ครู ห้องเรียน และรายละเอียดสถานศึกษา</p>
+      </section>
+
+      <div id="errorBanner" class="mt-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800" role="alert" hidden>
+        <strong class="block">โหลดข้อมูลไม่สำเร็จ</strong><span id="errorMessage" class="mt-1 block"></span><button id="retryButton" type="button" class="focus-ring mt-3 rounded-lg bg-rose-700 px-4 py-2 font-semibold text-white hover:bg-rose-800">ลองใหม่</button>
+      </div>
+
+      <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-soft" aria-labelledby="filterHeading">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"><div><h2 id="filterHeading" class="text-lg font-bold text-slate-900">ตัวกรองข้อมูล</h2><p class="text-sm text-slate-500">เลือกปีหนึ่งปี และใช้รหัสสถานศึกษาเชื่อมสังกัดหรือพื้นที่กับข้อมูลทุกชุด</p></div><button id="resetFilters" type="button" class="focus-ring self-start rounded-lg px-3 py-2 text-sm font-semibold text-pyo-700 hover:bg-pyo-50">ล้างตัวกรอง</button></div>
+        <form id="filterForm" class="mt-5 grid gap-4 md:grid-cols-3 lg:grid-cols-[1fr_1.4fr_1.4fr_auto]">
+          <label class="text-sm font-semibold text-slate-700">ปีการศึกษา<select id="yearFilter" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-normal"></select></label>
+          <label class="text-sm font-semibold text-slate-700">สังกัด<select id="departmentFilter" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-normal"><option value="">ทุกสังกัด</option></select></label>
+          <label class="text-sm font-semibold text-slate-700">พื้นที่การศึกษา<select id="areaFilter" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-normal"><option value="">ทุกพื้นที่</option></select></label>
+          <button type="submit" class="focus-ring self-end rounded-xl bg-pyo-700 px-5 py-2.5 font-bold text-white hover:bg-pyo-800">แสดงผล</button>
+        </form>
+      </section>
+
+      <section class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="ข้อมูลสรุป">
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">สถานศึกษา</p><p id="schoolCount" class="mt-2 text-3xl font-bold text-pyo-700">—</p><p class="mt-1 text-xs text-slate-400">แห่ง</p></article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">นักเรียนทั้งหมด</p><p id="studentTotal" class="mt-2 text-3xl font-bold text-blue-700">—</p><p class="mt-1 text-xs text-slate-400">คน</p></article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">ครูและบุคลากร</p><p id="teacherTotal" class="mt-2 text-3xl font-bold text-violet-700">—</p><p class="mt-1 text-xs text-slate-400">คน</p></article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">ห้องเรียน</p><p id="classroomTotal" class="mt-2 text-3xl font-bold text-amber-700">—</p><p class="mt-1 text-xs text-slate-400">ห้อง</p></article>
+      </section>
+
+      <section class="mt-6 grid gap-6 xl:grid-cols-[1fr_1.4fr]">
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft">
+          <div><h2 class="text-lg font-bold text-slate-900">นักเรียนจำแนกตามเพศ</h2><p class="text-sm text-slate-500">หน่วย: คน</p></div>
+          <div class="mx-auto mt-5 h-72 max-w-md"><canvas id="studentGenderChart" aria-label="กราฟจำนวนนักเรียนชายและหญิง" role="img"></canvas></div>
+          <div class="mt-4 grid grid-cols-2 gap-3"><div class="rounded-xl bg-blue-50 p-3"><p class="text-xs text-blue-600">ชาย</p><strong id="studentMale" class="mt-1 block text-xl text-blue-800">—</strong></div><div class="rounded-xl bg-rose-50 p-3"><p class="text-xs text-rose-600">หญิง</p><strong id="studentFemale" class="mt-1 block text-xl text-rose-800">—</strong></div></div>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft">
+          <h2 class="text-lg font-bold text-slate-900">ครูและบุคลากรจำแนกตามเพศ</h2><p class="text-sm text-slate-500">ผลรวมตามตัวกรองปัจจุบัน</p>
+          <div class="mt-6 grid gap-4 sm:grid-cols-2"><div class="rounded-2xl border border-blue-100 bg-blue-50 p-6"><p class="text-sm text-blue-700">ชาย</p><strong id="teacherMale" class="mt-3 block text-4xl text-blue-900">—</strong><span class="text-xs text-blue-600">คน</span></div><div class="rounded-2xl border border-rose-100 bg-rose-50 p-6"><p class="text-sm text-rose-700">หญิง</p><strong id="teacherFemale" class="mt-3 block text-4xl text-rose-900">—</strong><span class="text-xs text-rose-600">คน</span></div></div>
+          <p id="missingDataNote" class="mt-5 rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-600" hidden></p>
+        </article>
+      </section>
+
+      <section class="mt-6 rounded-2xl border border-slate-200 bg-white shadow-soft" aria-labelledby="schoolTableHeading">
+        <div class="flex flex-col gap-4 border-b border-slate-200 p-5 md:flex-row md:items-end md:justify-between"><div><h2 id="schoolTableHeading" class="text-lg font-bold text-slate-900">รายชื่อสถานศึกษา</h2><p id="schoolTableSummary" class="text-sm text-slate-500"></p></div><label class="w-full text-sm font-semibold text-slate-700 md:max-w-sm">ค้นหา<input id="schoolSearch" type="search" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal" placeholder="ชื่อ รหัส อำเภอ หรือตำบล"></label></div>
+        <div class="overflow-x-auto"><table class="min-w-[760px] w-full text-sm"><thead class="bg-slate-50 text-left text-slate-600"><tr><th class="px-4 py-3 text-center">ลำดับ</th><th class="px-4 py-3">สถานศึกษา</th><th class="px-4 py-3">สังกัด</th><th class="px-4 py-3">อำเภอ</th><th class="px-4 py-3 text-center">รายละเอียด</th></tr></thead><tbody id="schoolTableBody" class="divide-y divide-slate-100"></tbody></table></div>
+        <div class="flex flex-col gap-3 border-t border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between"><p id="schoolPageInfo" class="text-sm text-slate-500">หน้า —</p><div class="flex gap-2"><button id="previousPage" type="button" class="focus-ring rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40">ก่อนหน้า</button><button id="nextPage" type="button" class="focus-ring rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40">ถัดไป</button></div></div>
+      </section>
+
+      <section class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft" aria-labelledby="mapHeading">
+        <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 id="mapHeading" class="text-lg font-bold text-slate-900">แผนที่สถานศึกษา</h2><p id="mapSummary" class="text-sm text-slate-500">แผนที่จะโหลดเมื่อกดเปิดเท่านั้น</p></div><button id="mapToggle" type="button" class="focus-ring rounded-xl bg-slate-900 px-5 py-2.5 font-bold text-white hover:bg-slate-800" aria-expanded="false" aria-controls="mapPanel"><span data-map-label>เปิดแผนที่</span></button></div>
+        <div id="mapPanel" class="border-t border-slate-200 p-3" hidden><div id="schoolMap" class="h-[28rem] w-full rounded-xl" aria-label="แผนที่แสดงที่ตั้งสถานศึกษา"></div></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="loadingOverlay" class="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm" role="status" aria-live="polite" hidden>
+    <div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"><div class="flex items-center gap-3"><span class="h-6 w-6 animate-spin rounded-full border-4 border-slate-200 border-t-pyo-600" aria-hidden="true"></span><div><strong id="loadingTitle" class="block text-slate-900">กำลังโหลดข้อมูล</strong><span id="loadingStep" class="text-sm text-slate-500">กำลังเชื่อมต่อ API</span></div></div><div class="mt-5 h-2 overflow-hidden rounded-full bg-slate-200"><div id="loadingBar" class="h-full rounded-full bg-pyo-600 transition-[width] duration-200" style="width:5%"></div></div></div>
+  </div>
+
+  <div id="schoolModal" class="fixed inset-0 z-[1900] flex items-center justify-center bg-slate-950/70 p-4" role="dialog" aria-modal="true" aria-labelledby="schoolModalTitle" hidden>
+    <div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl"><div class="sticky top-0 flex items-start gap-4 border-b border-slate-200 bg-white p-5"><div class="flex-1"><p class="text-xs font-bold text-pyo-700">ข้อมูลสถานศึกษา</p><h2 id="schoolModalTitle" class="mt-1 text-xl font-bold text-slate-900">—</h2></div><button id="schoolModalClose" type="button" class="focus-ring rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="ปิดรายละเอียด">✕</button></div><dl id="schoolModalDetails" class="grid gap-4 p-5 sm:grid-cols-2"></dl></div>
+  </div>
+
+  <script src="../assets/js/config.js" defer></script>
+  <script src="../assets/js/data-client.js" defer></script>
+  <script src="../assets/vendor/chart/chart.umd.js" defer></script>
+  <script src="../assets/vendor/chart/chartjs-plugin-datalabels.min.js" defer></script>
+  <script src="../assets/vendor/leaflet/leaflet.js" defer></script>
+  <script src="../assets/js/dashboard-shell.js" defer></script>
+  <script src="../assets/js/site.js" defer></script>
+  <script src="../assets/js/dashboard-v2.js?v=20260804-2" defer></script>
+  <script type="module" src="../assets/js/auth-navigation.js"></script>
+</body>
+</html>

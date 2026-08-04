@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.xlsx
+*.xls
+test/
+Code*.gs
+apps-script/*.gs
+.DS_Store
+Thumbs.db

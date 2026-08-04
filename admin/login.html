@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>เข้าสู่ระบบเจ้าหน้าที่ | ข้อมูลการศึกษาพะเยา</title>
+  <link rel="icon" href="../assets/images/moe-icon.png">
+  <link rel="stylesheet" href="../assets/css/tailwind.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="min-h-screen bg-slate-950 px-4 py-10 font-sans text-slate-800">
+  <main class="mx-auto grid w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl lg:grid-cols-[1.05fr_.95fr]">
+    <section class="hidden bg-gradient-to-br from-pyo-900 via-pyo-800 to-teal-700 p-10 text-white lg:flex lg:flex-col lg:justify-between">
+      <div>
+        <img src="../assets/images/moe-icon.png" alt="ตรากระทรวงศึกษาธิการ" class="h-24 w-24 object-contain">
+        <p class="mt-8 text-xs font-bold tracking-[.22em] text-pyo-100">PYO EDUCATION DATA</p>
+        <h1 class="mt-3 text-3xl font-bold leading-tight">ระบบจัดการข้อมูลการศึกษาจังหวัดพะเยา</h1>
+        <p class="mt-4 leading-7 text-pyo-50">สำหรับเจ้าหน้าที่ผู้รับผิดชอบข้อมูลเท่านั้น Dashboard สาธารณะยังคงเปิดดูได้โดยไม่ต้องเข้าสู่ระบบ</p>
+      </div>
+      <p class="text-sm text-pyo-100">สำนักงานศึกษาธิการจังหวัดพะเยา</p>
+    </section>
+
+    <section class="p-7 sm:p-10">
+      <div class="text-center lg:text-left">
+        <img src="../assets/images/moe-icon.png" alt="" class="mx-auto h-20 w-20 object-contain lg:hidden">
+        <p class="text-sm font-bold text-pyo-700">STAFF ACCOUNT</p>
+        <h2 id="accountHeading" class="mt-2 text-2xl font-bold text-slate-900">เข้าสู่ระบบเจ้าหน้าที่</h2>
+        <p id="accountDescription" class="mt-2 text-sm leading-6 text-slate-500">ใช้บัญชีที่ยืนยันอีเมลแล้วและได้รับอนุญาตใน Apps Script</p>
+      </div>
+
+      <div class="mt-6 grid grid-cols-2 rounded-xl bg-slate-100 p-1" role="tablist" aria-label="บัญชีเจ้าหน้าที่">
+        <button id="showLogin" type="button" role="tab" aria-selected="true" aria-controls="loginForm" class="focus-ring rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-pyo-700 shadow-sm">เข้าสู่ระบบ</button>
+        <button id="showRegister" type="button" role="tab" aria-selected="false" aria-controls="registerForm" class="focus-ring rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-600">สมัครสมาชิก</button>
+      </div>
+
+      <div id="firebaseSetupNotice" class="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900" hidden>
+        ยังไม่ได้ตั้งค่า Firebase สำหรับระบบพะเยา กรุณากรอกค่าใน <code>assets/js/config.js</code> ก่อนเปิดใช้งานการเข้าสู่ระบบ
+      </div>
+      <div id="loginMessage" class="mt-6 rounded-xl p-4 text-sm" role="alert" aria-live="polite" hidden></div>
+
+      <form id="loginForm" class="mt-7 space-y-5">
+        <label class="block text-sm font-semibold">อีเมล
+          <input id="loginEmail" type="email" autocomplete="username" required class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal" placeholder="name@example.go.th">
+        </label>
+        <label class="block text-sm font-semibold">รหัสผ่าน
+          <input id="loginPassword" type="password" autocomplete="current-password" required minlength="6" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal" placeholder="••••••••">
+        </label>
+        <button id="loginSubmit" type="submit" class="focus-ring w-full rounded-xl bg-pyo-700 px-4 py-3 font-semibold text-white hover:bg-pyo-800 disabled:cursor-not-allowed disabled:opacity-50">เข้าสู่ระบบ</button>
+      </form>
+
+      <form id="registerForm" class="mt-7 space-y-5" hidden>
+        <label class="block text-sm font-semibold">อีเมล
+          <input id="registerEmail" type="email" autocomplete="email" required class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal" placeholder="name@example.go.th">
+        </label>
+        <label class="block text-sm font-semibold">รหัสผ่าน
+          <input id="registerPassword" type="password" autocomplete="new-password" required minlength="6" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal" placeholder="อย่างน้อย 6 ตัวอักษร">
+        </label>
+        <label class="block text-sm font-semibold">ยืนยันรหัสผ่าน
+          <input id="registerPasswordConfirm" type="password" autocomplete="new-password" required minlength="6" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal" placeholder="กรอกรหัสผ่านอีกครั้ง">
+        </label>
+        <div class="rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-900">
+          หลังสมัคร ระบบจะส่งลิงก์ยืนยันไปยังอีเมลของคุณ การอัปโหลดข้อมูลยังจำกัดเฉพาะบัญชีที่อยู่ใน allowlist ของ Apps Script
+        </div>
+        <button id="registerSubmit" type="submit" class="focus-ring w-full rounded-xl bg-pyo-700 px-4 py-3 font-semibold text-white hover:bg-pyo-800 disabled:cursor-not-allowed disabled:opacity-50">สมัครสมาชิก</button>
+      </form>
+
+      <div id="loginActions" class="mt-4 grid gap-2 sm:grid-cols-2">
+        <button id="resendVerification" type="button" class="focus-ring rounded-xl px-4 py-2 text-sm font-semibold text-pyo-700 hover:bg-pyo-50 disabled:opacity-50">ส่งอีเมลยืนยันอีกครั้ง</button>
+        <button id="forgotPassword" type="button" class="focus-ring rounded-xl px-4 py-2 text-sm font-semibold text-pyo-700 hover:bg-pyo-50 disabled:opacity-50">ลืมรหัสผ่าน</button>
+      </div>
+      <a id="backToDashboard" href="../dashboards/basic.html" class="focus-ring mt-5 block text-center text-sm text-slate-500 hover:text-pyo-700">← กลับไปยัง Dashboard</a>
+    </section>
+  </main>
+
+  <script src="../assets/js/config.js" defer></script>
+  <script type="module" src="../assets/js/login.js?v=20260804-3"></script>
+</body>
+</html>

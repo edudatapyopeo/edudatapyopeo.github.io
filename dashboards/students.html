@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dashboard ข้อมูลนักเรียน | ข้อมูลการศึกษาพะเยา</title>
+  <link rel="icon" href="../assets/images/moe-icon.png">
+  <link rel="stylesheet" href="../assets/css/tailwind.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-dashboard="students" class="min-h-screen bg-slate-50 font-sans text-slate-800">
+  <a href="#mainContent" class="skip-link">ข้ามไปยังเนื้อหา</a>
+  <header class="border-b bg-white shadow-sm">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+      <div class="flex items-center gap-3"><img src="../assets/images/moe-icon.png" alt="ตรากระทรวงศึกษาธิการ" class="h-12 w-12 object-contain"><div><h1 class="text-lg font-bold text-slate-900">Dashboard ข้อมูลนักเรียน</h1><p class="text-xs text-slate-500">สำนักงานศึกษาธิการจังหวัดพะเยา</p></div></div>
+      <nav class="flex gap-2 text-sm"><a href="basic.html" class="focus-ring rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100">ข้อมูลพื้นฐาน</a><a href="../index.html" class="focus-ring rounded-lg bg-pyo-50 px-3 py-2 font-semibold text-pyo-700">หน้าแรก</a></nav>
+    </div>
+  </header>
+
+  <main id="mainContent" class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <section class="rounded-3xl bg-gradient-to-r from-pyo-800 to-pyo-600 p-6 text-white shadow-soft sm:p-8">
+      <p class="text-xs font-bold tracking-[.24em] text-pyo-100">STUDENT DATA</p>
+      <h2 class="mt-2 text-2xl font-bold sm:text-3xl">ภาพรวมผู้เรียนและความเสมอภาคทางการศึกษา</h2>
+      <p class="mt-2 max-w-3xl text-sm text-pyo-50">คำนวณข้อมูลหนึ่งปีการศึกษา เชื่อมตัวกรองสังกัดและพื้นที่ด้วยรหัสสถานศึกษา</p>
+      <p id="lastUpdated" class="mt-4 text-xs text-pyo-100"></p>
+    </section>
+
+    <section id="errorBanner" class="mt-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-800" role="alert" hidden><strong>โหลดข้อมูลไม่สำเร็จ</strong><p id="errorMessage" class="mt-1 text-sm"></p><button id="retryButton" class="focus-ring mt-3 rounded-lg bg-rose-700 px-4 py-2 text-sm font-semibold text-white">ลองใหม่</button></section>
+
+    <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-soft" aria-labelledby="studentFilterHeading">
+      <div><h2 id="studentFilterHeading" class="text-lg font-bold">ตัวกรองข้อมูล</h2><p class="text-sm text-slate-500">ปีการศึกษาเลือกได้ครั้งละหนึ่งปี ส่วน “ทุกสังกัด/ทุกพื้นที่” จะไม่จำกัดข้อมูลในมิตินั้น</p></div>
+      <form id="studentFilterForm" class="mt-5 grid gap-4 md:grid-cols-3 lg:grid-cols-[1fr_1.5fr_1.5fr_auto]">
+        <label class="text-sm font-semibold">ปีการศึกษา<select id="studentYear" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-normal"></select></label>
+        <label class="text-sm font-semibold">สังกัด<select id="studentDepartment" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-normal"></select></label>
+        <label class="text-sm font-semibold">พื้นที่การศึกษา<select id="studentArea" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-normal"></select></label>
+        <div class="flex items-end gap-2"><button id="studentReset" type="button" class="focus-ring rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold">ล้างค่า</button><button type="submit" class="focus-ring rounded-xl bg-pyo-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-pyo-800">แสดงผล</button></div>
+      </form>
+    </section>
+
+    <section class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="ตัวชี้วัดนักเรียน">
+      <article class="rounded-2xl border border-blue-100 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">นักเรียนทั้งหมด</p><strong id="studentKpiTotal" class="mt-2 block text-3xl text-blue-700">—</strong><p class="mt-2 text-xs text-slate-500">ชาย <span id="studentKpiMale">—</span> · หญิง <span id="studentKpiFemale">—</span></p></article>
+      <article class="rounded-2xl border border-violet-100 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">นักเรียนพิการ</p><strong id="studentKpiDisabled" class="mt-2 block text-3xl text-violet-700">—</strong><p class="mt-2 text-xs text-slate-500">คน</p></article>
+      <article class="rounded-2xl border border-cyan-100 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">ไม่มีสัญชาติไทย</p><strong id="studentKpiNonThai" class="mt-2 block text-3xl text-cyan-700">—</strong><p class="mt-2 text-xs text-slate-500">คน</p></article>
+      <article class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">นักเรียนด้อยโอกาส</p><strong id="studentKpiDisadvantaged" class="mt-2 block text-3xl text-amber-700">—</strong><p class="mt-2 text-xs text-slate-500">คน</p></article>
+      <article class="rounded-2xl border border-orange-100 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">เรียนซ้ำ</p><strong id="studentKpiRepeat" class="mt-2 block text-3xl text-orange-700">—</strong><p class="mt-2 text-xs text-slate-500">คน</p></article>
+      <article class="rounded-2xl border border-rose-100 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">ออกกลางคัน</p><strong id="studentKpiDropout" class="mt-2 block text-3xl text-rose-700">—</strong><p class="mt-2 text-xs text-slate-500">คน</p></article>
+      <article class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">ผู้สำเร็จการศึกษา</p><strong id="studentKpiGraduated" class="mt-2 block text-3xl text-emerald-700">—</strong><p class="mt-2 text-xs text-slate-500">คน</p></article>
+      <article class="rounded-2xl border border-pyo-100 bg-white p-5 shadow-soft"><p class="text-sm text-slate-500">สามัญ : อาชีพ</p><strong id="studentKpiRatio" class="mt-2 block text-2xl text-pyo-700">—</strong><p id="studentRatioNote" class="mt-2 text-xs text-slate-500">รอข้อมูล</p></article>
+    </section>
+
+    <section class="mt-6 grid gap-6 lg:grid-cols-2">
+      <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft"><div><h2 class="font-bold">นักเรียนจำแนกตามเพศ</h2><p class="text-xs text-slate-500">หน่วย: คน</p></div><div class="mt-4 h-72"><canvas id="studentGenderChart" aria-label="กราฟนักเรียนจำแนกตามเพศ"></canvas></div></article>
+      <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft"><div><h2 class="font-bold">สายสามัญและสายอาชีพ</h2><p class="text-xs text-slate-500">ม.4–ม.6 เทียบกับ ปวช.1–ปวช.3</p></div><div class="mt-4 h-72"><canvas id="studentTrackChart" aria-label="กราฟสัดส่วนสายสามัญและสายอาชีพ"></canvas></div></article>
+      <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft lg:col-span-2"><div><h2 class="font-bold">ผู้สำเร็จการศึกษาจำแนกตามระดับ</h2><p class="text-xs text-slate-500">รวมชายและหญิงตามปีที่เลือก</p></div><div class="mt-4 h-80"><canvas id="studentGraduatedChart" aria-label="กราฟผู้สำเร็จการศึกษาจำแนกตามระดับ"></canvas></div></article>
+    </section>
+
+    <section class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft" aria-labelledby="indicatorTableHeading">
+      <div class="border-b p-5"><h2 id="indicatorTableHeading" class="font-bold">รายละเอียดตัวชี้วัดจำแนกตามเพศ</h2></div>
+      <div class="overflow-x-auto"><table class="w-full min-w-[36rem] text-sm"><thead class="bg-slate-50 text-slate-600"><tr><th class="px-5 py-3 text-left">ตัวชี้วัด</th><th class="px-5 py-3 text-right">ชาย</th><th class="px-5 py-3 text-right">หญิง</th><th class="px-5 py-3 text-right">รวม</th></tr></thead><tbody id="studentIndicatorBody"></tbody></table></div>
+    </section>
+  </main>
+
+  <div id="studentLoading" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 backdrop-blur-sm" role="status"><div class="w-[min(90vw,26rem)] rounded-2xl bg-white p-6 shadow-2xl"><strong id="studentLoadingTitle">กำลังโหลดข้อมูล</strong><p id="studentLoadingStep" class="mt-2 text-sm text-slate-500">กำลังเชื่อมต่อ API</p><div class="mt-4 h-2 overflow-hidden rounded-full bg-slate-100"><div id="studentLoadingBar" class="h-full rounded-full bg-pyo-600" style="width:8%"></div></div></div></div>
+
+  <script src="../assets/js/dashboard-shell.js" defer></script>
+  <script src="../assets/js/site.js" defer></script>
+  <script src="../assets/js/config.js" defer></script>
+  <script src="../assets/js/data-client.js" defer></script>
+  <script src="../assets/vendor/chart/chart.umd.js" defer></script>
+  <script src="../assets/vendor/chart/chartjs-plugin-datalabels.min.js" defer></script>
+  <script src="../assets/js/dashboard-v2.js?v=20260804-2" defer></script>
+</body>
+</html>

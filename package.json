@@ -1,0 +1,22 @@
+{
+  "name": "pyoedu-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ระบบข้อมูลสารสนเทศทางการศึกษาของจังหวัดพะเยา",
+  "packageManager": "pnpm@11.9.0",
+  "scripts": {
+    "vendor": "node ./scripts/copy-vendor.mjs",
+    "build": "pnpm run vendor && tailwindcss -i ./assets/css/tailwind.input.css -o ./assets/css/tailwind.css --minify",
+    "build:css": "pnpm run build",
+    "watch:css": "tailwindcss -i ./assets/css/tailwind.input.css -o ./assets/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "exceljs": "4.4.0",
+    "leaflet": "^1.9.4"
+  }
+}
