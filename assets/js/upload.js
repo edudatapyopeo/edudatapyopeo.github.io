@@ -1,4 +1,5 @@
 import { MAX_UPLOAD_ROWS, validateRowsYear, validateWorksheet } from "./upload-validator.js";
+import { buildScopedTemplateRows, filterTemplateSchools } from "./template-generator.js?v=20260805-1";
 
 const nf = new Intl.NumberFormat("th-TH");
 const schema = window.PYOEDU_SCHEMA || {};
@@ -14,9 +15,11 @@ const sheetLabels = {
 const elements = Object.fromEntries([
   "uploadDataset", "downloadTemplate", "uploadFile", "uploadFileName", "validateUpload", "submitUpload", "uploadStatus",
   "uploadTotal", "uploadInserted", "uploadUpdated", "uploadSkipped", "uploadPreviewSummary", "uploadPreviewHead", "uploadPreviewBody",
-  "uploadYear", "uploadYearHint"
+  "uploadYear", "uploadYearHint", "uploadDepartment", "uploadArea", "templateScopeHint"
 ].map(id => [id, document.getElementById(id)]));
 let validated = null;
+let templateSchools = [];
+let templateDownloading = false;
 
 function populateDatasets() {
   Object.entries(schema).forEach(([dbKey, sheets]) => {
@@ -33,6 +36,55 @@ function selectedSchema() {
   const [dbKey, sheetName] = elements.uploadDataset.value.split("|");
   const definition = schema[dbKey]?.[sheetName];
   return definition ? { dbKey, sheetName, definition } : null;
+}
+
+function selectedYearField(selected = selectedSchema()) {
+  if (!selected) return null;
+  return selected.definition.columns.includes("YEAR") ? "YEAR" : selected.definition.columns.includes("GRADUATED_YEAR") ? "GRADUATED_YEAR" : null;
+}
+
+function setScopeOptions(select, values, firstLabel) {
+  const current = select.value;
+  select.replaceChildren(new Option(firstLabel, ""), ...values.map(value => new Option(value, value)));
+  if (values.includes(current)) select.value = current;
+}
+
+function scopedSchools() {
+  return filterTemplateSchools(templateSchools, elements.uploadDepartment.value, elements.uploadArea.value);
+}
+
+function syncTemplateDownload() {
+  const selected = selectedSchema();
+  const yearField = selectedYearField(selected);
+  const validYear = !yearField || (elements.uploadYear.value && elements.uploadYear.checkValidity());
+  const count = elements.uploadDepartment.value ? scopedSchools().length : 0;
+  elements.downloadTemplate.disabled = templateDownloading || !selected || !elements.uploadDepartment.value || !validYear || count === 0;
+  if (!templateSchools.length) elements.templateScopeHint.textContent = "กำลังโหลดรายชื่อสถานศึกษา…";
+  else if (!elements.uploadDepartment.value) elements.templateScopeHint.textContent = "เลือกสังกัดเพื่อกำหนดรายชื่อสถานศึกษาใน Template";
+  else elements.templateScopeHint.textContent = `Template จะมี ${nf.format(count)} แถวสถานศึกษา${elements.uploadArea.value ? ` ใน ${elements.uploadArea.value}` : " จากทุกเขตพื้นที่ในสังกัด"}`;
+}
+
+function updateTemplateAreas() {
+  const department = elements.uploadDepartment.value;
+  const areas = [...new Set(templateSchools
+    .filter(school => !department || String(school.DEPARTMENT_NAME || "").trim() === department)
+    .map(school => String(school.EDU_AREA_NAME || "").trim() || "ไม่ระบุเขตพื้นที่การศึกษา"))]
+    .sort((a, b) => a.localeCompare(b, "th"));
+  setScopeOptions(elements.uploadArea, areas, "ทุกเขตพื้นที่การศึกษา");
+  elements.uploadArea.disabled = !department;
+  syncTemplateDownload();
+}
+
+async function loadTemplateSchools() {
+  try {
+    templateSchools = await window.PYOEDUDataClient.allRows("DB1", "School_Info");
+    const departments = [...new Set(templateSchools.map(school => String(school.DEPARTMENT_NAME || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "th"));
+    setScopeOptions(elements.uploadDepartment, departments, "เลือกสังกัด");
+    elements.uploadDepartment.disabled = false;
+    updateTemplateAreas();
+  } catch (error) {
+    elements.templateScopeHint.textContent = "โหลดรายชื่อสถานศึกษาไม่สำเร็จ กรุณารีเฟรชหน้า";
+  }
 }
 
 function showStatus(text, type = "info") {
@@ -89,7 +141,7 @@ elements.uploadDataset.addEventListener("change", () => {
   elements.uploadYear.required = hasYear;
   if (!hasYear) elements.uploadYear.value = "";
   elements.uploadYearHint.textContent = hasYear ? "ระบบจะตรวจว่าทุกแถวในไฟล์เป็นปีเดียวกับที่ระบุ" : "ชุดข้อมูลนี้ไม่มีคอลัมน์ปี จึงไม่ต้องตรวจปี";
-  elements.downloadTemplate.disabled = !selectedSchema();
+  syncTemplateDownload();
   elements.validateUpload.disabled = !(selectedSchema() && elements.uploadFile.files[0]);
 });
 
@@ -100,15 +152,53 @@ elements.uploadFile.addEventListener("change", () => {
   elements.validateUpload.disabled = !(selectedSchema() && file);
 });
 
-elements.uploadYear.addEventListener("input", resetValidation);
+elements.uploadYear.addEventListener("input", () => { resetValidation(); syncTemplateDownload(); });
+elements.uploadDepartment.addEventListener("change", updateTemplateAreas);
+elements.uploadArea.addEventListener("change", syncTemplateDownload);
 
-elements.downloadTemplate.addEventListener("click", () => {
+elements.downloadTemplate.addEventListener("click", async () => {
   const selected = selectedSchema();
-  if (!selected) return;
-  const link = document.createElement("a");
-  link.href = `../assets/templates/${selected.dbKey}_${selected.sheetName}_template.xlsx`;
-  link.download = `${selected.dbKey}_${selected.sheetName}_template.xlsx`;
-  link.click();
+  const schools = scopedSchools();
+  if (!selected || !schools.length || !window.ExcelJS) return;
+  templateDownloading = true; syncTemplateDownload();
+  try {
+    const yearField = selectedYearField(selected);
+    if (yearField && (!elements.uploadYear.value || !elements.uploadYear.checkValidity())) throw new Error("กรุณาระบุปีข้อมูลให้ถูกต้องก่อนสร้าง Template");
+    const filters = yearField ? { [yearField]: elements.uploadYear.value } : {};
+    const existingRows = selected.sheetName === "School_Info" ? [] : await window.PYOEDUDataClient.allRows(selected.dbKey, selected.sheetName, { filters, bypassCache: true });
+    const templateRows = buildScopedTemplateRows(selected.definition, schools, elements.uploadYear.value, selected.sheetName, existingRows);
+    if (templateRows.length > MAX_UPLOAD_ROWS) throw new Error(`Template มี ${nf.format(templateRows.length)} แถว เกินขีดจำกัด ${nf.format(MAX_UPLOAD_ROWS)} แถว กรุณาเลือกขอบเขตให้แคบลง`);
+    const workbook = new window.ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(selected.sheetName.slice(0, 31), { views: [{ state: "frozen", ySplit: 1 }] });
+    worksheet.addRow(selected.definition.columns);
+    worksheet.addRows(templateRows);
+    worksheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: selected.definition.columns.length } };
+    worksheet.getRow(1).eachCell(cell => {
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0F766E" } };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    });
+    selected.definition.columns.forEach((field, index) => {
+      const column = worksheet.getColumn(index + 1);
+      column.width = Math.min(Math.max(field.length + 4, field.includes("NAME") ? 28 : 16), 42);
+      if (field === "SCHOOL_CODE") column.numFmt = "@";
+      if (selected.sheetName !== "School_Info" && ![yearField, "DEPARTMENT_NAME", "EDU_AREA_NAME", "SCHOOL_CODE", "SCHOOL_NAME"].includes(field)) {
+        for (let row = 2; row <= worksheet.rowCount; row += 1) worksheet.getCell(row, index + 1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFF7D6" } };
+      }
+    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    const url = URL.createObjectURL(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${selected.dbKey}_${selected.sheetName}_${elements.uploadYear.value || "current"}_scoped_template.xlsx`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showStatus(`สร้าง Template สำเร็จ ${nf.format(templateRows.length)} แถว จาก ${nf.format(schools.length)} สถานศึกษา โดยเว้นช่องสีเหลืองไว้ให้กรอก`, "success");
+  } catch (error) {
+    showStatus(error.message || "สร้าง Template ไม่สำเร็จ", "error");
+  } finally {
+    templateDownloading = false; syncTemplateDownload();
+  }
 });
 
 elements.validateUpload.addEventListener("click", async () => {
@@ -158,4 +248,5 @@ elements.submitUpload.addEventListener("click", async () => {
 
 populateDatasets();
 elements.uploadYear.disabled = true;
+loadTemplateSchools();
 if (!firebaseConfigured) showStatus("ยังไม่ได้ตั้งค่า Firebase จึงตรวจไฟล์ได้แต่ยังไม่สามารถอัปโหลด", "info");

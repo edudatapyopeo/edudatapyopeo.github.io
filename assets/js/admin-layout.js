@@ -4,6 +4,7 @@
   const main = document.querySelector("main");
   const headerActions = document.getElementById("adminHeaderActions");
   const account = document.getElementById("adminAccountCard");
+  const accountSlot = document.getElementById("adminAccountSlot");
   const coverage = document.getElementById("coverageTracker");
   const upload = document.getElementById("uploadConsole");
   const editor = document.getElementById("recordEditor");
@@ -32,6 +33,7 @@
   message.className = "basis-full text-right text-xs";
   account.prepend(avatar, identity);
   headerActions.prepend(account);
+  accountSlot?.remove();
 
   const hero = main.querySelector("section");
   hero.after(coverage);

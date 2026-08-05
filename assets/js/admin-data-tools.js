@@ -1,3 +1,5 @@
+import { analyzeMetricCoverage, coverageMetricFields, filterCoverageRows, summarizeIncompleteSchools } from "./coverage-analysis.js?v=20260805-5";
+
 const api = window.PYOEDUDataClient;
 const schema = window.PYOEDU_SCHEMA || {};
 const nf = new Intl.NumberFormat("th-TH");
@@ -76,22 +78,86 @@ editor.form.addEventListener("submit", async event => {
 
 const coverageYear = document.getElementById("coverageYear");
 const coverageRefresh = document.getElementById("coverageRefresh");
+const coverageDepartmentFilter = document.getElementById("coverageDepartmentFilter");
+const coverageAreaFilter = document.getElementById("coverageAreaFilter");
 const coverageStatus = document.getElementById("coverageStatus");
 const coverageBody = document.getElementById("coverageBody");
-const coverageDatasets = Object.entries(schema).flatMap(([dbKey, sheets]) => Object.entries(sheets).map(([sheetName, definition]) => ({ dbKey, sheetName, definition }))).filter(item => yearField(item.definition));
+const coverageSummary = document.getElementById("coverageSummary");
+const coverageIncompleteTotal = document.getElementById("coverageIncompleteTotal");
+const coverageSchoolTotal = document.getElementById("coverageSchoolTotal");
+const coverageDepartmentGroup = document.getElementById("coverageDepartmentGroup");
+const coverageDepartmentCards = document.getElementById("coverageDepartmentCards");
+const coverageAreaGroup = document.getElementById("coverageAreaGroup");
+const coverageAreaCards = document.getElementById("coverageAreaCards");
+const coverageDatasets = Object.entries(schema)
+  .flatMap(([dbKey, sheets]) => Object.entries(sheets).map(([sheetName, definition]) => ({
+    dbKey, sheetName, definition, metrics: coverageMetricFields(definition)
+  })))
+  .filter(item => yearField(item.definition) && item.metrics.length);
+let coverageRows = [];
+let coverageLoadedYear = null;
+const departmentOf = item => String(item.school.DEPARTMENT_NAME || "").trim() || "ไม่ระบุสังกัด";
+const areaOf = item => String(item.school.EDU_AREA_NAME || "").trim() || "ไม่ระบุเขตพื้นที่การศึกษา";
+const renderCoverageCards = items => items.map(item => `<article class="rounded-lg border border-slate-200 bg-white p-3"><p class="text-xs font-semibold text-slate-700">${escapeHtml(item.label)}</p><p class="mt-1 text-sm text-slate-600"><strong class="text-2xl text-amber-700">${nf.format(item.count)}</strong> จาก ${nf.format(item.total)} แห่ง</p></article>`).join("");
+
+function setCoverageOptions(select, values, allLabel) {
+  const current = select.value;
+  select.replaceChildren(new Option(allLabel, ""), ...values.map(value => new Option(value, value)));
+  if (values.includes(current)) select.value = current;
+}
+
+function updateCoverageAreaOptions() {
+  const department = coverageDepartmentFilter.value;
+  const source = department ? coverageRows.filter(item => departmentOf(item) === department) : coverageRows;
+  const areas = [...new Set(source.map(areaOf))].sort((a, b) => a.localeCompare(b, "th"));
+  setCoverageOptions(coverageAreaFilter, areas, "ทุกเขตพื้นที่การศึกษา");
+}
+
+function renderCoverage() {
+  const department = coverageDepartmentFilter.value;
+  const area = coverageAreaFilter.value;
+  const rows = filterCoverageRows(coverageRows, department, area);
+  const assessed = rows.reduce((total, item) => total + item.assessed, 0);
+  const summary = summarizeIncompleteSchools(rows);
+  coverageIncompleteTotal.textContent = nf.format(summary.total);
+  coverageSchoolTotal.textContent = nf.format(summary.schoolTotal);
+  coverageDepartmentCards.innerHTML = renderCoverageCards(summary.departments);
+  coverageDepartmentGroup.hidden = summary.departments.length === 0;
+  coverageAreaCards.innerHTML = renderCoverageCards(summary.areas);
+  coverageAreaGroup.hidden = summary.areas.length === 0;
+  coverageSummary.hidden = false;
+  coverageBody.innerHTML = rows.map(item => {
+    const detail = item.issues.length
+      ? item.issues.map(issue => `<span class="rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-900">${escapeHtml(labels[issue.dataset.sheetName] || issue.dataset.sheetName)} · ${nf.format(issue.incompleteRows)} รายการ</span>`).join("")
+      : item.assessed
+        ? `<span class="rounded-full bg-emerald-100 px-2 py-1 text-xs text-emerald-800">Metric ครบใน ${nf.format(item.assessed)} ชุดข้อมูลที่พบ</span>`
+        : `<span class="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">ไม่พบรายการที่ใช้ประเมินในปีนี้ · ไม่ถือว่าขาด</span>`;
+    return `<tr class="border-t"><td class="px-4 py-3 font-medium">${escapeHtml(item.school.SCHOOL_NAME || "ไม่มีข้อมูล")}<span class="block text-xs font-normal text-slate-400">${escapeHtml(item.school.SCHOOL_CODE || "")}</span></td><td class="px-4 py-3">${escapeHtml(item.school.DEPARTMENT_NAME || "ไม่มีข้อมูล")}</td><td class="px-4 py-3"><div class="flex max-w-2xl flex-wrap gap-1">${detail}</div></td><td class="px-4 py-3 text-right font-semibold">${nf.format(item.issues.length)}</td></tr>`;
+  }).join("") || `<tr class="border-t"><td colspan="4" class="px-4 py-8 text-center text-slate-500">ไม่พบสถานศึกษาตามตัวกรองที่เลือก</td></tr>`;
+  coverageStatus.textContent = `แสดง ${nf.format(rows.length)} จาก ${nf.format(coverageRows.length)} สถานศึกษา · ประเมิน ${nf.format(assessed)} ชุดข้อมูลที่มีรายการ · ปี ${coverageLoadedYear}`;
+}
+
+function syncCoverageRefresh() { coverageRefresh.disabled = !coverageYear.value || !coverageYear.checkValidity(); }
+coverageYear.addEventListener("input", syncCoverageRefresh);
+coverageDepartmentFilter.addEventListener("change", () => { updateCoverageAreaOptions(); renderCoverage(); });
+coverageAreaFilter.addEventListener("change", renderCoverage);
 coverageRefresh.addEventListener("click", async () => {
-  const year = Number(coverageYear.value); if (!Number.isInteger(year)) { coverageStatus.textContent = "กรุณาระบุปีข้อมูล"; return; }
-  coverageRefresh.disabled = true; coverageStatus.textContent = `กำลังตรวจ ${nf.format(coverageDatasets.length)} ชุดข้อมูล…`; coverageBody.replaceChildren();
+  const year = Number(coverageYear.value); if (!coverageYear.checkValidity() || !Number.isInteger(year)) { coverageStatus.textContent = "กรุณาระบุปีข้อมูลระหว่าง 2500-2700"; coverageYear.reportValidity(); return; }
+  coverageRefresh.disabled = true; coverageYear.disabled = true; coverageDepartmentFilter.disabled = true; coverageAreaFilter.disabled = true; coverageStatus.textContent = `กำลังตรวจ ${nf.format(coverageDatasets.length)} ชุดข้อมูล…`; coverageBody.replaceChildren(); coverageSummary.hidden = true;
   try {
     const schools = await api.allRows("DB1", "School_Info");
-    const results = await Promise.all(coverageDatasets.map(item => api.summary(item.dbKey, item.sheetName, { groupBy: ["SCHOOL_CODE"], metrics: [], filters: { [yearField(item.definition)]: year } })));
-    const present = results.map(result => new Set((result.data || []).map(row => String(row.SCHOOL_CODE || ""))));
-    const rows = schools.map(school => { const code = String(school.SCHOOL_CODE || ""); const missing = coverageDatasets.filter((_, index) => !present[index].has(code)); return { school, missing }; }).sort((a, b) => b.missing.length - a.missing.length || String(a.school.SCHOOL_NAME).localeCompare(String(b.school.SCHOOL_NAME), "th"));
-    coverageBody.innerHTML = rows.map(item => `<tr class="border-t"><td class="px-4 py-3 font-medium">${escapeHtml(item.school.SCHOOL_NAME || "ไม่มีข้อมูล")}<span class="block text-xs font-normal text-slate-400">${escapeHtml(item.school.SCHOOL_CODE || "")}</span></td><td class="px-4 py-3">${escapeHtml(item.school.DEPARTMENT_NAME || "ไม่มีข้อมูล")}</td><td class="px-4 py-3"><div class="flex max-w-2xl flex-wrap gap-1">${item.missing.map(def => `<span class="rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-900">${escapeHtml(labels[def.sheetName] || def.sheetName)}</span>`).join("") || `<span class="rounded-full bg-emerald-100 px-2 py-1 text-xs text-emerald-800">พบข้อมูลครบทุกชุด</span>`}</div></td><td class="px-4 py-3 text-right font-semibold">${nf.format(item.missing.length)}</td></tr>`).join("");
-    coverageStatus.textContent = `ตรวจแล้ว ${nf.format(schools.length)} สถานศึกษา · ปี ${year}`;
+    const results = await Promise.all(coverageDatasets.map(item => api.allRows(item.dbKey, item.sheetName, { filters: { [yearField(item.definition)]: year }, bypassCache: true })));
+    coverageRows = analyzeMetricCoverage(schools, coverageDatasets, results);
+    coverageLoadedYear = year;
+    setCoverageOptions(coverageDepartmentFilter, [...new Set(coverageRows.map(departmentOf))].sort((a, b) => a.localeCompare(b, "th")), "ทุกสังกัด");
+    updateCoverageAreaOptions();
+    coverageDepartmentFilter.disabled = false;
+    coverageAreaFilter.disabled = false;
+    renderCoverage();
   } catch (error) { coverageStatus.textContent = error.message || "ตรวจสอบไม่สำเร็จ"; }
-  finally { coverageRefresh.disabled = false; }
+  finally { coverageYear.disabled = false; syncCoverageRefresh(); }
 });
 
 populateDatasets();
 populateSchoolSuggestions();
+syncCoverageRefresh();
