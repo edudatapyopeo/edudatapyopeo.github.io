@@ -8,14 +8,17 @@
   const backdrop = document.getElementById("sidebarBackdrop");
   const dashboardToggle = document.getElementById("dashboardMenuButton");
   const dashboardMenu = document.getElementById("dashboardMenu");
+  const sdg4Toggle = document.getElementById("sdg4MenuButton");
+  const sdg4Menu = document.getElementById("sdg4Menu");
 
-  function markCurrentDashboard() {
-    if (!dashboardMenu) return;
+  function markCurrentLinks(menu) {
+    if (!menu) return;
     const currentPage = window.location.pathname.split("/").pop();
-    dashboardMenu.querySelectorAll("a[href]").forEach(link => {
-      const active = link.getAttribute("href") === currentPage;
+    menu.querySelectorAll("a[href]").forEach(link => {
+      const linkPage = link.getAttribute("href")?.split("/").pop();
+      const active = linkPage === currentPage;
       link.toggleAttribute("aria-current", active);
-      link.classList.toggle("bg-pyo-700", active);
+      link.classList.toggle(menu === sdg4Menu ? "bg-emerald-700" : "bg-pyo-700", active);
       link.classList.toggle("font-semibold", active);
       link.classList.toggle("text-white", active);
       link.classList.toggle("text-slate-300", !active);
@@ -38,22 +41,34 @@
     dashboardToggle.querySelector("[data-chevron]")?.classList.toggle("rotate-180", open);
   }
 
+  function setSdg4MenuOpen(open) {
+    if (!sdg4Menu || !sdg4Toggle) return;
+    sdg4Menu.hidden = !open;
+    sdg4Toggle.setAttribute("aria-expanded", String(open));
+    sdg4Toggle.querySelector("[data-chevron]")?.classList.toggle("rotate-180", open);
+  }
+
   menuButton?.addEventListener("click", () => setSidebarOpen(true));
   closeButton?.addEventListener("click", () => setSidebarOpen(false));
   backdrop?.addEventListener("click", () => setSidebarOpen(false));
   dashboardToggle?.addEventListener("click", () => {
     setDashboardMenuOpen(dashboardMenu?.hidden ?? true);
   });
+  sdg4Toggle?.addEventListener("click", () => {
+    setSdg4MenuOpen(sdg4Menu?.hidden ?? true);
+  });
 
   document.addEventListener("keydown", event => {
     if (event.key !== "Escape") return;
     setSidebarOpen(false);
     setDashboardMenuOpen(false);
+    setSdg4MenuOpen(false);
   });
 
   window.matchMedia("(min-width: 1024px)").addEventListener("change", event => {
     if (event.matches) setSidebarOpen(false);
   });
 
-  markCurrentDashboard();
+  markCurrentLinks(dashboardMenu);
+  markCurrentLinks(sdg4Menu);
 })();

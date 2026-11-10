@@ -4,12 +4,19 @@
   if (document.getElementById("siteSidebar")) return;
 
   const currentPage = window.location.pathname.split("/").pop() || "basic.html";
-  const links = [
+  const inSdg4Section = /\/sdg4\//.test(window.location.pathname.replace(/\\/g, "/"));
+  const dashboardBase = inSdg4Section ? "../dashboards/" : "";
+  const sdg4Base = inSdg4Section ? "" : "../sdg4/";
+  const dashboardLinks = [
     ["basic.html", "ข้อมูลพื้นฐาน"],
     ["students.html", "ข้อมูลนักเรียน"],
     ["teachers.html", "ครูและบุคลากร"],
     ["curriculum.html", "หลักสูตร"],
     ["infrastructure.html", "โครงสร้างพื้นฐาน"]
+  ];
+  const sdg4Links = [
+    ["indicators.html", "ติดตามความก้าวหน้าตัวชี้วัด"],
+    ["projects.html", "รายงานการดำเนินโครงการ"]
   ];
 
   const backdrop = document.createElement("div");
@@ -29,9 +36,13 @@
     </div>
     <nav class="flex-1 overflow-y-auto px-3 py-5">
       <a href="../index.html" class="focus-ring flex items-center gap-3 rounded-lg px-4 py-3 text-slate-200 hover:bg-slate-800"><span aria-hidden="true">⌂</span><span>หน้าแรก</span></a>
-      <button id="dashboardMenuButton" type="button" class="focus-ring mt-2 flex w-full items-center gap-3 rounded-lg bg-slate-800 px-4 py-3 text-left text-white" aria-expanded="true" aria-controls="dashboardMenu"><span aria-hidden="true">▦</span><span class="flex-1">แดชบอร์ด</span><span data-chevron class="rotate-180 transition-transform" aria-hidden="true">⌄</span></button>
-      <div id="dashboardMenu" class="ml-5 border-l border-slate-700 pl-3">
-        ${links.map(([href, label]) => `<a href="${href}"${href === currentPage ? ' aria-current="page"' : ""} class="focus-ring block rounded-md px-3 py-2 text-sm ${href === currentPage ? "bg-pyo-700 font-semibold text-white" : "text-slate-300 hover:bg-slate-800 hover:text-white"}">${label}</a>`).join("")}
+      <button id="dashboardMenuButton" type="button" class="focus-ring mt-2 flex w-full items-center gap-3 rounded-lg ${inSdg4Section ? "text-slate-200 hover:bg-slate-800" : "bg-slate-800 text-white"} px-4 py-3 text-left" aria-expanded="${String(!inSdg4Section)}" aria-controls="dashboardMenu"><span aria-hidden="true">▦</span><span class="flex-1">แดชบอร์ดข้อมูลสารสนเทศ</span><span data-chevron class="${inSdg4Section ? "" : "rotate-180 "}transition-transform" aria-hidden="true">⌄</span></button>
+      <div id="dashboardMenu" class="ml-5 border-l border-slate-700 pl-3"${inSdg4Section ? " hidden" : ""}>
+        ${dashboardLinks.map(([href, label]) => `<a href="${dashboardBase}${href}"${!inSdg4Section && href === currentPage ? ' aria-current="page"' : ""} class="focus-ring block rounded-md px-3 py-2 text-sm ${!inSdg4Section && href === currentPage ? "bg-pyo-700 font-semibold text-white" : "text-slate-300 hover:bg-slate-800 hover:text-white"}">${label}</a>`).join("")}
+      </div>
+      <button id="sdg4MenuButton" type="button" class="focus-ring mt-2 flex w-full items-center gap-3 rounded-lg ${inSdg4Section ? "bg-emerald-800 text-white" : "text-slate-200 hover:bg-slate-800"} px-4 py-3 text-left" aria-expanded="${String(inSdg4Section)}" aria-controls="sdg4Menu"><span aria-hidden="true">🌏</span><span class="flex-1">ระบบ SDG4</span><span data-chevron class="${inSdg4Section ? "rotate-180 " : ""}transition-transform" aria-hidden="true">⌄</span></button>
+      <div id="sdg4Menu" class="ml-5 border-l border-emerald-800/70 pl-3"${inSdg4Section ? "" : " hidden"}>
+        ${sdg4Links.map(([href, label]) => `<a href="${sdg4Base}${href}"${inSdg4Section && href === currentPage ? ' aria-current="page"' : ""} class="focus-ring block rounded-md px-3 py-2 text-sm ${inSdg4Section && href === currentPage ? "bg-emerald-700 font-semibold text-white" : "text-slate-300 hover:bg-slate-800 hover:text-white"}">${label}</a>`).join("")}
       </div>
     </nav>
     <div class="border-t border-slate-800 p-4"><a href="../admin/login.html?returnTo=${encodeURIComponent(window.location.href)}" class="focus-ring block rounded-lg border border-slate-700 px-4 py-2.5 text-center text-sm font-semibold hover:border-pyo-500">เข้าสู่ระบบเจ้าหน้าที่</a></div>`;

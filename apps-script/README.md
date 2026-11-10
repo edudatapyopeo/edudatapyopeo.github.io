@@ -8,6 +8,9 @@
 - `PYOEDU_DB2_ID`
 - `PYOEDU_DB3_ID`
 - `PYOEDU_DB4_ID`
+- `PYOEDU_DB5_TESTSCORE_ID`
+- `PYOEDU_DB6_SDG4_MONITORING_ID`
+- `PYOEDU_DB7_SDG4_PROJECT_ID`
 - `FIREBASE_WEB_API_KEY`
 - `ALLOWED_STAFF_EMAILS` รายการอีเมลคั่นด้วยจุลภาค
 - `ALLOWED_ADMIN_EMAILS` รายการอีเมลคั่นด้วยจุลภาค
@@ -16,7 +19,7 @@
 
 ## ขั้นตอนติดตั้ง
 
-1. สร้าง Apps Script project ด้วยบัญชีที่เข้าถึง Google Sheets ทั้งสี่ไฟล์ได้
+1. สร้าง Apps Script project ด้วยบัญชีที่เข้าถึง Google Sheets ทุกไฟล์ที่กำหนดใน `PYOEDU_SCHEMA` ได้
 2. คัดลอกเนื้อหา `Code.gs` ไปยัง Apps Script editor
 3. ตั้งค่า Script Properties ตามรายการข้างต้น
 4. Deploy เป็น Web app โดยกำหนด Execute as เป็นเจ้าของ Script และ Who has access เป็น `Anyone` เพื่อให้ Public Dashboard อ่านข้อมูลได้
@@ -25,3 +28,5 @@
 7. นำ Web app URL ไปใส่ใน `assets/js/config.js` เฉพาะเครื่องพัฒนา
 
 ก่อน Deploy ต้องตรวจหัวคอลัมน์จริงครบทั้ง 15 ชีต โดยเฉพาะ `Dropout_Student`
+
+สำหรับ `DB7_SDG4_PROJECT / SDG4_Project` Public API จะส่งออกเฉพาะแถวที่ `PUBLICATION_STATUS` เท่ากับ `PUBLISHED` เท่านั้น แถวที่เว้นว่างหรือเป็นสถานะอื่นจะไม่ปรากฏบนหน้าเว็บไซต์
