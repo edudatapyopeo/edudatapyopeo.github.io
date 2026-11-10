@@ -3,6 +3,7 @@ module.exports = {
   content: [
     "./*.html",
     "./dashboards/**/*.html",
+    "./sdg4/**/*.html",
     "./admin/**/*.html",
     "./assets/js/**/*.js"
   ],

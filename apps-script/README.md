@@ -14,6 +14,9 @@
 - `FIREBASE_WEB_API_KEY`
 - `ALLOWED_STAFF_EMAILS` รายการอีเมลคั่นด้วยจุลภาค
 - `ALLOWED_ADMIN_EMAILS` รายการอีเมลคั่นด้วยจุลภาค
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET` เก็บเฉพาะใน Script Properties ห้ามใส่ในไฟล์เว็บไซต์
 
 ห้ามใส่ค่าจริงเหล่านี้ใน Git หรือในไฟล์คู่มือ
 
@@ -30,3 +33,7 @@
 ก่อน Deploy ต้องตรวจหัวคอลัมน์จริงครบทั้ง 15 ชีต โดยเฉพาะ `Dropout_Student`
 
 สำหรับ `DB7_SDG4_PROJECT / SDG4_Project` Public API จะส่งออกเฉพาะแถวที่ `PUBLICATION_STATUS` เท่ากับ `PUBLISHED` เท่านั้น แถวที่เว้นว่างหรือเป็นสถานะอื่นจะไม่ปรากฏบนหน้าเว็บไซต์
+
+แบบฟอร์มรายงานโครงการส่ง `POST` โดยกำหนด `operation` เป็น `createSdg4Project` ฝั่ง Server จะตรวจ Firebase ID Token และรายชื่อ staff/admin ก่อนสร้าง `PROJECT_ID`, `DATE_UPLOAD` และกำหนด `PUBLICATION_STATUS` เป็น `PUBLISHED` ให้อัตโนมัติ
+
+ภาพหน้าปกใช้ Signed Direct Upload โดยแบบฟอร์มขอลายเซ็นชั่วคราวผ่าน `operation: "createCloudinarySignature"` แล้วส่งไฟล์จาก Browser ไป Cloudinary โดยตรง ค่า `CLOUDINARY_API_SECRET` จะไม่ถูกส่งกลับไปยัง Browser

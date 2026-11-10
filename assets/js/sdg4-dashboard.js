@@ -39,6 +39,57 @@
     if ([...select.options].some(option => option.value === current)) select.value = current;
   }
 
+  function selectedMulti(id) {
+    const root = byId(id);
+    return root ? [...root.querySelectorAll('input[type="checkbox"]:checked')].map(input => input.value) : [];
+  }
+
+  function updateMultiSummary(root, allLabel) {
+    const checked = [...root.querySelectorAll('input[type="checkbox"]:checked')];
+    const summary = root.querySelector("[data-summary]");
+    if (!summary) return;
+    summary.textContent = checked.length === 0 ? allLabel : checked.length === 1 ? checked[0].dataset.label : `เลือกแล้ว ${checked.length} รายการ`;
+  }
+
+  function setMultiOptions(root, items, allLabel) {
+    if (!root) return;
+    const selected = new Set(selectedMulti(root.id));
+    const optionBox = root.querySelector("[data-options]");
+    const normalized = items.filter(item => item.value).sort((left, right) => left.label.localeCompare(right.label, "th", { numeric: true }));
+    optionBox.replaceChildren(...normalized.map(item => {
+      const label = document.createElement("label");
+      label.className = "flex cursor-pointer items-start gap-2 rounded-lg px-2 py-2 text-sm hover:bg-slate-50 has-[:checked]:bg-emerald-50";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = item.value;
+      input.checked = selected.has(item.value);
+      input.dataset.label = item.label;
+      input.setAttribute("aria-label", item.description ? `${item.label} ${item.description}` : item.label);
+      input.className = "mt-1 shrink-0 accent-emerald-700";
+      const content = document.createElement("span");
+      const title = document.createElement("strong");
+      title.className = "block text-slate-800";
+      title.textContent = item.label;
+      content.append(title);
+      if (item.description) {
+        const description = document.createElement("span");
+        description.className = "mt-0.5 block text-xs font-normal leading-5 text-slate-500";
+        description.textContent = item.description;
+        content.append(description);
+      }
+      input.addEventListener("change", () => { updateMultiSummary(root, allLabel); renderProjects(); });
+      label.append(input, content);
+      return label;
+    }));
+    const clear = root.querySelector("[data-clear]");
+    clear.onclick = () => {
+      root.querySelectorAll('input[type="checkbox"]').forEach(input => { input.checked = false; });
+      updateMultiSummary(root, allLabel);
+      renderProjects();
+    };
+    updateMultiSummary(root, allLabel);
+  }
+
   function renderIndicators() {
     if (!byId("indicatorTableBody")) return;
     const target = byId("indicatorTargetFilter").value;
@@ -89,9 +140,14 @@
   function renderProjects() {
     if (!byId("projectCardGrid")) return;
     const year = byId("projectYearFilter").value;
-    const target = byId("projectTargetFilter").value;
-    const type = byId("projectTypeFilter").value;
-    const rows = state.projects.filter(row => (!year || text(row.YEAR) === year) && (!target || text(row.SDG4_TARGET_ID).split(/[|,;/]+/).map(value => value.trim()).includes(target)) && (!type || text(row.PROJECT_TYPE) === type));
+    const targets = selectedMulti("projectTargetFilter");
+    const agencies = selectedMulti("projectAgencyFilter");
+    const rows = state.projects.filter(row => {
+      const rowTargets = text(row.SDG4_TARGET_ID).split(/[|,;/]+/).map(value => value.trim()).filter(Boolean);
+      return (!year || text(row.YEAR) === year)
+        && (!targets.length || targets.some(target => rowTargets.includes(target)))
+        && (!agencies.length || agencies.includes(text(row.DEPARTMENT_NAME_AGENCY)));
+    });
     const grid = byId("projectCardGrid");
     if (!state.projects.length) {
       byId("projectSummary").textContent = "ยังไม่มีข้อมูลโครงการ ระบบจึงแสดงการ์ดตัวอย่างเพื่อดูรูปแบบเบื้องต้น";
@@ -128,9 +184,9 @@
       notice.textContent = "หน้าแสดงผลพร้อมใช้งานในโหมดตัวอย่าง แต่ API ของฐาน SDG4 ยังอ่านไม่ครบ กรุณาเพิ่มฐาน DB6/DB7 ใน Apps Script ตั้งค่า Script Properties และ Deploy เวอร์ชันใหม่";
     }
     setOptions(byId("indicatorTargetFilter"), Object.keys(state.targets), "ทุกเป้าหมาย");
-    setOptions(byId("projectTargetFilter"), Object.keys(state.targets), "ทุกเป้าหมาย");
+    setMultiOptions(byId("projectTargetFilter"), Object.entries(state.targets).map(([value, description]) => ({ value, label: `SDG ${value}`, description })), "ทุกเป้าหมาย");
     setOptions(byId("projectYearFilter"), state.projects.map(row => text(row.YEAR)), "ทุกปี");
-    setOptions(byId("projectTypeFilter"), state.projects.map(row => text(row.PROJECT_TYPE)), "ทุกประเภท");
+    setMultiOptions(byId("projectAgencyFilter"), [...new Set(state.projects.map(row => text(row.DEPARTMENT_NAME_AGENCY)).filter(Boolean))].map(value => ({ value, label: value })), "ทุกหน่วยงาน");
     renderIndicators();
     renderProjects();
   }
@@ -138,8 +194,6 @@
   byId("indicatorTargetFilter")?.addEventListener("change", renderIndicators);
   byId("indicatorSearch")?.addEventListener("input", renderIndicators);
   byId("projectYearFilter")?.addEventListener("change", renderProjects);
-  byId("projectTargetFilter")?.addEventListener("change", renderProjects);
-  byId("projectTypeFilter")?.addEventListener("change", renderProjects);
   initialize().catch(error => {
     const notice = byId("sdg4Notice");
     if (notice) {

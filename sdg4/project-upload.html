@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="แบบฟอร์มรายงานผลการดำเนินโครงการ SDG4 จังหวัดพะเยา">
+  <title>รายงานโครงการ | SDG4 จังหวัดพะเยา</title>
+  <link rel="icon" href="../assets/images/moe-icon.png">
+  <link rel="stylesheet" href="../assets/css/tailwind.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="min-h-screen bg-slate-50 font-sans text-slate-800">
+  <div id="projectUploadGuard" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 px-4 backdrop-blur-sm" role="status">
+    <div class="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-2xl">
+      <strong id="projectUploadGuardTitle" class="text-lg">กำลังตรวจสอบสิทธิ์บัญชี</strong>
+      <p id="projectUploadGuardMessage" class="mt-2 text-sm leading-6 text-slate-500">กรุณารอสักครู่</p>
+      <a id="projectUploadGuardAction" href="../admin/login.html" hidden class="focus-ring mt-5 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white">เข้าสู่ระบบ</a>
+    </div>
+  </div>
+
+  <header class="border-b bg-white shadow-sm">
+    <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+      <div class="flex min-w-0 items-center gap-3"><img src="../assets/images/moe-icon.png" alt="ตรากระทรวงศึกษาธิการ" class="h-12 w-12 object-contain"><div class="min-w-0"><h1 class="truncate font-bold text-slate-900">รายงานผลการดำเนินโครงการ</h1><p class="truncate text-xs text-slate-500">ระบบ SDG4 จังหวัดพะเยา</p></div></div>
+      <a href="projects.html" class="focus-ring rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-emerald-700">กลับหน้ารวมโครงการ</a>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <section class="rounded-3xl bg-gradient-to-r from-slate-950 via-emerald-950 to-emerald-700 p-6 text-white shadow-soft sm:p-8">
+      <p class="text-xs font-bold tracking-[.22em] text-emerald-100">PROJECT SUBMISSION</p>
+      <h2 class="mt-2 text-2xl font-bold">เพิ่มโครงการที่เกี่ยวข้องกับ SDG4</h2>
+      <p id="projectUploaderAccount" class="mt-3 text-sm text-emerald-100">กำลังตรวจสอบบัญชี</p>
+    </section>
+
+    <form id="projectUploadForm" class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft">
+      <div class="border-b border-slate-200 p-6"><h2 class="text-xl font-bold text-slate-900">รายละเอียดโครงการ</h2><p class="mt-1 text-sm text-slate-500">ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก ระบบจะสร้างรหัสโครงการและวันที่บันทึกให้อัตโนมัติ</p></div>
+      <div class="grid gap-5 p-6 md:grid-cols-2">
+        <label class="text-sm font-semibold">ปีโครงการ <span class="text-rose-700">*</span>
+          <input id="projectYear" name="YEAR" type="number" min="2500" max="2700" inputmode="numeric" required class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal" placeholder="เช่น 2569">
+        </label>
+        <label class="text-sm font-semibold">หน่วยงานผู้ดำเนินโครงการ <span class="text-rose-700">*</span>
+          <input id="projectAgency" name="DEPARTMENT_NAME_AGENCY" type="text" list="projectAgencyOptions" maxlength="300" autocomplete="off" required disabled aria-describedby="projectAgencyHint" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 font-normal disabled:cursor-wait disabled:bg-slate-100" placeholder="กำลังโหลดรายชื่อหน่วยงาน…">
+          <datalist id="projectAgencyOptions"></datalist>
+          <span id="projectAgencyHint" class="mt-1 block text-xs font-normal text-slate-500">พิมพ์บางส่วนของชื่อ แล้วเลือกหน่วยงานจากรายการที่ระบบแนะนำ</span>
+        </label>
+        <label class="text-sm font-semibold md:col-span-2">ชื่อโครงการ <span class="text-rose-700">*</span>
+          <input id="projectTitle" name="PROJECT_TITLE" type="text" maxlength="300" required class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal" placeholder="ระบุชื่อโครงการอย่างกระชับ">
+        </label>
+        <label class="text-sm font-semibold md:col-span-2">รายละเอียดผลการดำเนินงาน <span class="text-rose-700">*</span>
+          <textarea id="projectDetail" name="PROJECT_DETAIL" rows="6" maxlength="1000" required class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal leading-7" placeholder="สรุปวัตถุประสงค์ กิจกรรม ผลที่เกิดขึ้น และกลุ่มเป้าหมาย"></textarea>
+          <span id="projectDetailCount" class="mt-1 block text-right text-xs font-normal text-slate-400">0/1,000</span>
+        </label>
+        <label class="text-sm font-semibold">งบประมาณ (บาท)
+          <input id="projectBudget" name="BUDGET_AMOUNT" type="number" min="0" step="1" inputmode="numeric" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal" placeholder="0">
+        </label>
+        <label class="text-sm font-semibold">ประเภทโครงการที่เกี่ยวข้อง
+          <select id="projectType" name="PROJECT_TYPE" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 font-normal"><option value="">ไม่ระบุ</option><option value="ด้านวิทยาศาสตร์สิ่งแวดล้อมและธรณีวิทยา">ด้านวิทยาศาสตร์สิ่งแวดล้อมและธรณีวิทยา</option><option value="ด้านความเป็นพลเมือง">ด้านความเป็นพลเมือง</option></select>
+        </label>
+        <fieldset class="md:col-span-2" aria-describedby="projectTargetHint projectTargetError">
+          <legend class="text-sm font-semibold">เป้าหมาย SDG4 ที่เกี่ยวข้อง <span class="text-rose-700">*</span></legend>
+          <p id="projectTargetHint" class="mt-1 text-xs leading-5 text-slate-500">เลือกได้มากกว่าหนึ่งเป้าหมาย โดยคลิกที่รายการที่เกี่ยวข้องกับโครงการ</p>
+          <div id="projectSdgTargets" class="mt-3 grid gap-3 lg:grid-cols-2"><p class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">กำลังโหลดเป้าหมาย…</p></div>
+          <p id="projectTargetError" class="mt-2 text-sm text-rose-700" role="alert" hidden>กรุณาเลือกเป้าหมาย SDG4 อย่างน้อยหนึ่งรายการ</p>
+        </fieldset>
+      </div>
+
+      <div class="border-y border-slate-200 bg-slate-50 p-6"><h2 class="text-xl font-bold text-slate-900">ภาพและแหล่งอ้างอิง</h2><p class="mt-1 text-sm text-slate-500">เลือกภาพหน้าปกจากเครื่องได้หนึ่งภาพ ระบบจะอัปโหลดและสร้างลิงก์สำหรับแสดงผลให้อัตโนมัติ</p></div>
+      <div class="grid gap-5 p-6 md:grid-cols-2">
+        <div class="space-y-5">
+          <label class="block cursor-pointer rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50 p-6 text-center hover:border-emerald-500">ภาพหน้าปก <span class="text-rose-700">*</span>
+            <span class="mt-2 block text-base font-bold text-emerald-900">เลือกภาพจากเครื่อง</span>
+            <span id="projectCoverFileName" class="mt-1 block text-xs font-normal leading-5 text-emerald-800">รองรับ JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB</span>
+            <input id="projectCoverFile" name="COVER_IMAGE_FILE" type="file" accept="image/jpeg,image/png,image/webp" required class="sr-only">
+          </label>
+          <label class="block text-sm font-semibold">ลิงก์ภาพเพิ่มเติม
+            <input id="projectAdditionalUrl" name="ADDITIONAL_IMAGES_URL" type="url" inputmode="url" pattern="https://.*" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal" placeholder="ลิงก์อัลบั้มหรือหน้าเผยแพร่ภาพ">
+          </label>
+          <label class="block text-sm font-semibold">ลิงก์เอกสารหรือแหล่งอ้างอิง
+            <input id="projectReferenceUrl" name="REFERENCE_URL" type="url" inputmode="url" pattern="https://.*" class="focus-ring mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal" placeholder="https://...">
+          </label>
+        </div>
+        <div>
+          <p class="text-sm font-semibold">ตัวอย่างภาพหน้าปก</p>
+          <div id="projectCoverPreview" class="mt-2 grid aspect-video place-items-center overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-100 p-5 text-center text-sm text-slate-500"><span>เลือกภาพจากเครื่องเพื่อดูตัวอย่าง</span></div>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-200 p-6">
+        <label class="flex items-start gap-3 text-sm leading-6"><input id="projectConfirmation" type="checkbox" required class="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-700"><span>ข้าพเจ้ายืนยันว่าข้อมูลและลิงก์ที่ระบุสามารถเผยแพร่ต่อสาธารณะได้ <span class="text-rose-700">*</span></span></label>
+        <div id="projectUploadStatus" class="mt-4 rounded-xl border p-4 text-sm" role="status" aria-live="polite" hidden></div>
+        <div class="mt-5 flex flex-wrap gap-3"><button id="projectUploadSubmit" type="submit" class="focus-ring rounded-xl bg-emerald-700 px-6 py-3 font-bold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50">บันทึกและเผยแพร่โครงการ</button><a href="projects.html" class="focus-ring rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700">ยกเลิก</a></div>
+      </div>
+    </form>
+  </main>
+
+  <script src="../assets/js/config.js" defer></script>
+  <script src="../assets/js/data-client.js" defer></script>
+  <script type="module" src="../assets/js/sdg4-project-upload.js"></script>
+</body>
+</html>
