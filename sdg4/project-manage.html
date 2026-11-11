@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="จัดการโครงการ SDG4 ที่ผู้ใช้รายงานในระบบจังหวัดพะเยา">
+  <title>จัดการโครงการ | SDG4 จังหวัดพะเยา</title>
+  <link rel="icon" href="../assets/images/moe-icon.png">
+  <link rel="stylesheet" href="../assets/css/tailwind.css?v=20261110-1">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261111-sdg4-1">
+</head>
+<body data-dashboard="sdg4-project-manage" class="min-h-screen bg-slate-50 font-sans text-slate-800">
+  <div id="projectManageGuard" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 px-4 backdrop-blur-sm" role="status">
+    <div class="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-2xl">
+      <strong id="projectManageGuardTitle" class="text-lg">กำลังตรวจสอบสิทธิ์บัญชี</strong>
+      <p id="projectManageGuardMessage" class="mt-2 text-sm leading-6 text-slate-500">กรุณารอสักครู่</p>
+      <a id="projectManageGuardAction" href="../admin/login.html" hidden class="focus-ring mt-5 inline-block rounded-xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white">เข้าสู่ระบบ</a>
+    </div>
+  </div>
+
+  <header class="border-b bg-white shadow-sm">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+      <div class="flex min-w-0 items-center gap-3"><img src="../assets/images/moe-icon.png" alt="ตรากระทรวงศึกษาธิการ" class="h-12 w-12 object-contain"><div class="min-w-0"><h1 class="truncate font-bold text-slate-900">จัดการโครงการ SDG4</h1><p class="truncate text-xs text-slate-500">ระบบ SDG4 จังหวัดพะเยา</p></div></div>
+      <a href="projects.html" class="focus-ring rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-emerald-700">กลับหน้ารายงานโครงการ</a>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <section class="rounded-3xl bg-gradient-to-r from-slate-950 via-emerald-950 to-emerald-700 p-6 text-white shadow-soft sm:p-8">
+      <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div><p class="text-xs font-bold tracking-[.22em] text-emerald-100">PROJECT MANAGEMENT</p><h2 class="mt-2 text-2xl font-bold sm:text-3xl">โครงการที่คุณสามารถจัดการได้</h2><p id="projectManageAccount" class="mt-3 text-sm text-emerald-100">กำลังตรวจสอบบัญชี</p></div>
+        <a href="project-upload.html" class="focus-ring w-fit rounded-xl bg-white px-5 py-3 text-sm font-bold text-emerald-900 shadow-lg hover:bg-emerald-50">＋ รายงานโครงการ</a>
+      </div>
+    </section>
+
+    <div id="projectManageNotice" class="mt-5 rounded-xl border p-4 text-sm leading-6" role="status" aria-live="polite" hidden></div>
+
+    <section class="mt-7 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft" aria-labelledby="manageHeading">
+      <div class="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-end sm:justify-between">
+        <div><h2 id="manageHeading" class="text-xl font-bold text-slate-900">รายชื่อโครงการ</h2><p id="projectManageSummary" class="mt-1 text-sm text-slate-500">กำลังโหลดข้อมูล…</p></div>
+        <label class="text-sm font-semibold text-slate-700">ค้นหาโครงการ
+          <input id="projectManageSearch" type="search" class="focus-ring mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 font-normal sm:w-80" placeholder="ชื่อโครงการ หน่วยงาน หรือรหัสโครงการ">
+        </label>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+          <thead class="bg-slate-50 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+            <tr><th class="px-4 py-3">ปี</th><th class="px-4 py-3">รหัสโครงการ</th><th class="min-w-72 px-4 py-3">ชื่อโครงการ</th><th class="min-w-64 px-4 py-3">หน่วยงาน</th><th class="px-4 py-3">กลุ่มเป้าหมาย</th><th class="px-4 py-3">เป้าหมาย SDG4</th><th class="px-4 py-3">สถานะ</th><th class="px-4 py-3 text-center">จัดการ</th></tr>
+          </thead>
+          <tbody id="projectManageTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+
+      <div id="projectManageEmpty" class="p-10 text-center text-sm text-slate-500" hidden>ยังไม่มีโครงการที่คุณสามารถจัดการได้</div>
+      <div id="projectManagePagination" class="flex flex-col gap-3 border-t border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between" hidden>
+        <p id="projectManagePageSummary" class="text-sm text-slate-500"></p>
+        <div class="flex items-center gap-2"><button id="projectManagePrevious" type="button" class="focus-ring rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40">ก่อนหน้า</button><label class="text-sm text-slate-600">หน้า <select id="projectManagePage" class="focus-ring rounded-lg border border-slate-300 bg-white px-3 py-2"></select></label><button id="projectManageNext" type="button" class="focus-ring rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40">ถัดไป</button></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../assets/js/config.js" defer></script>
+  <script src="../assets/js/data-client.js" defer></script>
+  <script type="module" src="../assets/js/sdg4-project-manage.js?v=20261111-2"></script>
+</body>
+</html>

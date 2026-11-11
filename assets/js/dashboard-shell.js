@@ -26,7 +26,7 @@
 
   const sidebar = document.createElement("aside");
   sidebar.id = "siteSidebar";
-  sidebar.className = "fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col bg-slate-950 text-slate-100 shadow-2xl transition-transform duration-200 lg:translate-x-0";
+  sidebar.className = "fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col border-r border-slate-200 bg-white text-slate-700 transition-transform duration-200 lg:translate-x-0";
   sidebar.setAttribute("aria-label", "เมนูหลัก");
   sidebar.innerHTML = `
     <div class="flex items-center gap-3 border-b border-slate-800 px-5 py-5">

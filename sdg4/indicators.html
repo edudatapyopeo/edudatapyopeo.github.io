@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="ระบบติดตามความก้าวหน้าตัวชี้วัด SDG4 จังหวัดพะเยา">
   <title>ติดตามความก้าวหน้าตัวชี้วัด | SDG4 จังหวัดพะเยา</title>
-  <link rel="icon" href="../assets/images/moe-icon.png"><link rel="stylesheet" href="../assets/css/tailwind.css"><link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="icon" href="../assets/images/moe-icon.png"><link rel="stylesheet" href="../assets/css/tailwind.css?v=20261111-1"><link rel="stylesheet" href="../assets/css/style.css?v=20261111-sdg4-1">
 </head>
 <body data-dashboard="sdg4-indicators" class="min-h-screen bg-slate-50 font-sans text-slate-800">
   <a href="#mainContent" class="skip-link">ข้ามไปยังเนื้อหา</a>
@@ -13,9 +13,12 @@
     <section class="rounded-3xl bg-gradient-to-r from-slate-950 via-emerald-950 to-emerald-700 p-6 text-white shadow-soft sm:p-8"><p class="text-xs font-bold tracking-[.24em] text-emerald-100">SDG4 PROGRESS MONITORING</p><h2 class="mt-2 text-2xl font-bold sm:text-3xl">ระบบติดตามความก้าวหน้าตัวชี้วัดระดับจังหวัด</h2></section>
     <div id="sdg4Notice" class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900" role="status" hidden></div>
     <section id="indicatorSection" class="mt-7" aria-labelledby="indicatorHeading">
-      <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"><h2 id="indicatorHeading" class="text-2xl font-bold text-slate-900">รายการตัวชี้วัด SDG4 จังหวัดพะเยา</h2><div class="grid gap-3 sm:grid-cols-2"><label class="text-sm font-semibold text-slate-700">เป้าหมายย่อย<select id="indicatorTargetFilter" class="focus-ring mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-normal"><option value="">ทุกเป้าหมาย</option></select></label><label class="text-sm font-semibold text-slate-700">ค้นหาตัวชี้วัด<input id="indicatorSearch" type="search" class="focus-ring mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-normal" placeholder="รหัสหรือชื่อตัวชี้วัด"></label></div></div>
-      <div class="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft"><div class="flex flex-col gap-2 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between"><p id="indicatorSummary" class="text-sm text-slate-600">กำลังเตรียมรายการตัวชี้วัด</p><span class="inline-flex w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">ผลลัพธ์ที่ยังไม่มีข้อมูลจะแสดง “–”</span></div><div class="overflow-x-auto"><table class="w-full min-w-[68rem] text-sm"><thead class="bg-slate-50 text-left text-slate-600"><tr><th class="px-4 py-3">รหัส</th><th class="px-4 py-3">เป้าหมาย</th><th class="px-4 py-3">ตัวชี้วัดจังหวัด</th><th class="px-4 py-3 text-center">ปีข้อมูล</th><th class="px-4 py-3 text-right">ผลการดำเนินงาน</th><th class="px-4 py-3">สถานะ</th></tr></thead><tbody id="indicatorTableBody" class="divide-y divide-slate-100"></tbody></table></div></div>
+      <div class="sticky top-3 z-20 rounded-2xl border border-slate-200 bg-white/95 p-5 shadow-soft backdrop-blur">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"><div><h2 id="indicatorHeading" class="text-2xl font-bold text-slate-900">ตัวชี้วัด SDG4 จังหวัดพะเยา</h2><p id="indicatorSummary" class="mt-1 text-sm text-slate-500">กำลังเตรียมรายการตัวชี้วัด</p></div><div class="grid gap-3 sm:grid-cols-2 lg:w-[38rem]"><label class="text-sm font-semibold text-slate-700">เป้าหมาย SDG4<select id="indicatorTargetFilter" class="focus-ring mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-normal"><option value="">ทุกเป้าหมาย</option></select></label><label class="text-sm font-semibold text-slate-700">ค้นหาตัวชี้วัด<input id="indicatorSearch" type="search" class="focus-ring mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-normal" placeholder="เช่น 4.1.1 หรือ คะแนน NT"></label></div></div>
+      </div>
+      <div class="mt-4 flex items-center gap-2 text-xs text-slate-500"><span class="inline-flex rounded-full bg-amber-100 px-3 py-1 font-bold text-amber-800">ผลที่ยังคำนวณไม่ได้จะแสดง “–”</span><span>เรียงตามรหัสเป้าหมายและตัวชี้วัด</span></div>
+      <div id="indicatorGroups" class="mt-7 space-y-10"></div>
     </section>
   </main>
-  <script src="../assets/js/dashboard-shell.js" defer></script><script src="../assets/js/site.js" defer></script><script src="../assets/js/config.js" defer></script><script src="../assets/js/data-client.js" defer></script><script src="../assets/js/sdg4-dashboard.js" defer></script>
+  <script src="../assets/js/dashboard-shell.js" defer></script><script src="../assets/js/site.js" defer></script><script src="../assets/js/config.js" defer></script><script src="../assets/js/data-client.js" defer></script><script src="../assets/js/sdg4-dashboard.js?v=20261111-7" defer></script>
 </body></html>

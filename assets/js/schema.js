@@ -66,5 +66,59 @@ window.PYOEDU_SCHEMA = Object.freeze({
       columns: ["YEAR", "DEPARTMENT_NAME", "EDU_AREA_NAME", "SCHOOL_CODE", "SCHOOL_NAME", "INFRASTRUCTURE", "STATUS_Y_N"],
       key: ["YEAR", "SCHOOL_CODE", "INFRASTRUCTURE"]
     }
+  },
+  DB5_TESTSCORE: {
+    ONET_Score: {
+      columns: ["YEAR", "EDU_LEVEL", "TEST_SUBJECT", "AVG_SCORE", "MOREHALF_SCORE"],
+      key: ["YEAR", "EDU_LEVEL", "TEST_SUBJECT"]
+    },
+    NT_Score: {
+      columns: ["YEAR", "TEST_SUBJECT", "AVG_SCORE", "MOREHALF_SCORE"],
+      key: ["YEAR", "TEST_SUBJECT"]
+    },
+    RT_Score: {
+      columns: ["YEAR", "TEST_SUBJECT", "AVG_SCORE"],
+      key: ["YEAR", "TEST_SUBJECT"]
+    },
+    NNET_Score: {
+      columns: ["YEAR", "TEST_LEVEL", "TEST_SUBJECT", "AVG_SCORE"],
+      key: ["YEAR", "TEST_LEVEL", "TEST_SUBJECT"]
+    },
+    VNET_Score: {
+      columns: ["YEAR", "TEST_LEVEL", "TEST_SUBJECT", "PART_NAME", "FUll_SCORE", "AVG_SCORE"],
+      key: ["YEAR", "TEST_LEVEL", "TEST_SUBJECT", "PART_NAME"]
+    }
+  },
+  DB6_SDG4_MONITORING: {
+    SDG4_Target_Master: {
+      columns: ["TARGET_ID", "TARGET_NAME_TH"],
+      key: ["TARGET_ID"]
+    },
+    SDG4_Indicator_Master: {
+      columns: ["INDICATOR_ID", "SDG4_TARGET_ID", "INDICATOR_NAME_TH"],
+      key: ["INDICATOR_ID"]
+    },
+    "SDG4.2.1": {
+      columns: ["YEAR", "POPULATION0-5YO_COUNT", "MONITORCHILD_COUNT", "AGE-AD_CHILD_COUNT", "AGE-AD_CHILD_PERCENT"],
+      key: ["YEAR"]
+    },
+    "SDG4.2.2": {
+      columns: ["YEAR", "AGE", "POPULATION_MALE_COUNT", "POPULATION_FEMALE_COUNT"],
+      key: ["YEAR", "AGE"]
+    },
+    "SDG4.4.1": {
+      columns: ["YEAR", "INTERNET_MOBILE_DATA", "HAVE_COUNT", "DONTHAVE_COUNT"],
+      key: ["YEAR", "INTERNET_MOBILE_DATA"]
+    },
+    "SDG4.6.1": {
+      columns: ["YEAR", "AGE_GROUP", "SURVEY_COUNT", "ILLITERACY_COUNT"],
+      key: ["YEAR", "AGE_GROUP"]
+    }
+  },
+  DB7_SDG4_PROJECT: {
+    SDG4_Project: {
+      columns: ["YEAR", "PROJECT_ID", "PROJECT_TITLE", "PROJECT_DETAIL", "DEPARTMENT_NAME_AGENCY", "TARGET_GROUP_COUNT", "BUDGET_AMOUNT", "SDG4_TARGET_ID", "PROJECT_TYPE", "COVER_IMAGE_URL", "ADDITIONAL_IMAGES_URL", "REFERENCE_URL", "DATE_UPLOAD", "PUBLICATION_STATUS", "UPLOADER_EMAIL", "COVER_IMAGE_PUBLIC_ID"],
+      key: ["PROJECT_ID"]
+    }
   }
 });

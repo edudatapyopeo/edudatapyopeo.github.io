@@ -13,24 +13,37 @@ if (config && footer) {
   observeAuth(user => {
     if (!user?.emailVerified) return;
     footer.replaceChildren();
+    footer.classList.add("auth-account-panel");
+    const identity = document.createElement("div");
+    identity.className = "auth-account-identity";
+    const avatar = document.createElement("span");
+    avatar.className = "auth-account-avatar";
+    avatar.textContent = String(user.email || "ผู้").trim().charAt(0).toUpperCase();
+    const accountCopy = document.createElement("div");
+    accountCopy.className = "min-w-0";
+    const status = document.createElement("p");
+    status.className = "auth-account-status";
+    status.textContent = "ลงชื่อเข้าใช้แล้ว";
     const account = document.createElement("p");
-    account.className = "truncate px-2 text-xs text-slate-400";
+    account.className = "auth-account-email";
     account.textContent = user.email || "เจ้าหน้าที่";
+    accountCopy.append(status, account);
+    identity.append(avatar, accountCopy);
     const actions = document.createElement("div");
-    actions.className = "mt-3 grid grid-cols-2 gap-2";
+    actions.className = "auth-account-actions";
     const adminLink = document.createElement("a");
     adminLink.href = "../admin/index.html";
-    adminLink.className = "focus-ring rounded-lg bg-pyo-700 px-3 py-2 text-center text-xs font-semibold text-white";
+    adminLink.className = "focus-ring auth-account-manage";
     adminLink.textContent = "จัดการข้อมูล";
     const signOut = document.createElement("button");
     signOut.type = "button";
-    signOut.className = "focus-ring rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold";
+    signOut.className = "focus-ring auth-account-signout";
     signOut.textContent = "ออกจากระบบ";
     signOut.addEventListener("click", async () => {
       await signOutUser();
       window.location.reload();
     });
     actions.append(adminLink, signOut);
-    footer.append(account, actions);
+    footer.append(identity, actions);
   });
 }
